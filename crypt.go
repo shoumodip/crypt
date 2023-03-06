@@ -21,10 +21,6 @@ func solve(poly []*big.Int, x *big.Int) Point {
 	return Point{x, y}
 }
 
-func random(max *big.Int) (*big.Int, error) {
-	return rand.Int(rand.Reader, max)
-}
-
 // TODO: use finite field to eliminate brute force attacks
 func encode(secret *big.Int, shares int, minimum int) ([]Point, error) {
 	if minimum > shares {
@@ -33,7 +29,7 @@ func encode(secret *big.Int, shares int, minimum int) ([]Point, error) {
 
 	poly := make([]*big.Int, minimum)
 	for i := 1; i < minimum; i++ {
-		n, err := random(secret)
+		n, err := rand.Int(rand.Reader, secret)
 		if err != nil {
 			return nil, err
 		}
