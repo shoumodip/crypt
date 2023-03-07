@@ -12,6 +12,9 @@ import (
 )
 
 // Encoder
+// BUG: sometimes decoding does not result in the actual secret
+// Specifically when decoding with the coordinates (1, _) (2, _) (_, _)
+
 type Point struct {
 	x, y *big.Int
 }
