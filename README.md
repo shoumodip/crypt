@@ -1,5 +1,5 @@
 # Crypt
-A WIP cryptography system in Go using the [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) method.
+[Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) in Go
 
 ## Quick Start
 ```console
