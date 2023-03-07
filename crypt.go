@@ -11,16 +11,6 @@ type Point struct {
 	x, y *big.Int
 }
 
-func solve(poly []*big.Int, x *big.Int, field *big.Int) Point {
-	a := big.NewInt(1)
-	y := big.NewInt(0)
-	for _, c := range poly {
-		y = new(big.Int).Add(y, new(big.Int).Mul(a, c))
-		a = new(big.Int).Mul(a, x)
-	}
-	return Point{x, new(big.Int).Mod(y, field)}
-}
-
 func encode(secret *big.Int, shares int, minimum int) ([]Point, *big.Int, error) {
 	if minimum > shares {
 		return nil, nil, errors.New("share subset cannot be larger than total shares")
@@ -48,25 +38,34 @@ func encode(secret *big.Int, shares int, minimum int) ([]Point, *big.Int, error)
 
 	points := make([]Point, shares)
 	for i := 0; i < shares; i++ {
-		points[i] = solve(poly, big.NewInt(int64(i+1)), field)
+		points[i] = Point{big.NewInt(int64(i + 1)), big.NewInt(0)}
+
+		a := big.NewInt(1)
+		for _, c := range poly {
+			points[i].y = new(big.Int).Add(points[i].y, new(big.Int).Mul(a, c))
+			a = new(big.Int).Mul(a, points[i].x)
+		}
+
+		points[i].y = new(big.Int).Mod(points[i].y, field)
 	}
 
-	return points, field, nil
+	return points[:minimum], field, nil
 }
 
 func decode(points []Point, field *big.Int) *big.Int {
 	sum := big.NewFloat(0.0)
-	for j := range points {
-		product := big.NewFloat(1.0)
-		for m := range points {
-			if m != j {
-				xm := new(big.Float).SetInt(points[m].x)
-				xj := new(big.Float).SetInt(points[j].x)
-				product = new(big.Float).Mul(product, new(big.Float).Quo(xm, new(big.Float).Sub(xm, xj)))
-			}
+	for i := range points {
+		xi := new(big.Float).SetInt(points[i].x)
 
+		product := big.NewFloat(1.0)
+		for j := range points {
+			if j != i {
+				xj := new(big.Float).SetInt(points[j].x)
+				product = new(big.Float).Mul(product, new(big.Float).Quo(xj, new(big.Float).Sub(xj, xi)))
+			}
 		}
-		sum = new(big.Float).Add(sum, new(big.Float).Mul(new(big.Float).SetInt(points[j].y), product))
+
+		sum = new(big.Float).Add(sum, new(big.Float).Mul(new(big.Float).SetInt(points[i].y), product))
 	}
 
 	result, _ := sum.Int(nil)
