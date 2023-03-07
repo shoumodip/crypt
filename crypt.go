@@ -1,19 +1,24 @@
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"math/big"
+	"os"
+	"strconv"
+	"strings"
 )
 
+// Encoder
 type Point struct {
 	x, y *big.Int
 }
 
 func encode(secret *big.Int, shares int, minimum int) ([]Point, *big.Int, error) {
 	if minimum > shares {
-		return nil, nil, errors.New("share subset cannot be larger than total shares")
+		return nil, nil, errors.New("minimum shares cannot be larger than total shares")
 	}
 
 	poly := make([]*big.Int, minimum)
@@ -49,7 +54,7 @@ func encode(secret *big.Int, shares int, minimum int) ([]Point, *big.Int, error)
 		points[i].y = new(big.Int).Mod(points[i].y, field)
 	}
 
-	return points[:minimum], field, nil
+	return points, field, nil
 }
 
 func decode(points []Point, field *big.Int) *big.Int {
@@ -72,25 +77,146 @@ func decode(points []Point, field *big.Int) *big.Int {
 	return new(big.Int).Mod(result, field)
 }
 
-// TODO: customize at runtime
-const (
-	SECRET  = 123456789
-	SHARES  = 6
-	MINIMUM = 3
-)
+// Parser
+func inputLine(scanner *bufio.Scanner) (string, error) {
+	if !scanner.Scan() {
+		return "", scanner.Err()
+	}
+
+	return scanner.Text(), nil
+}
+
+func parseBigInt(str string) (*big.Int, error) {
+	n, ok := new(big.Int).SetString(strings.TrimSpace(str), 10)
+	if !ok {
+		return nil, errors.New("invalid number '" + str + "'")
+	}
+	return n, nil
+}
+
+func inputBigInt(scanner *bufio.Scanner) (*big.Int, error) {
+	input, err := inputLine(scanner)
+	if err != nil {
+		return nil, err
+	}
+	return parseBigInt(input)
+}
+
+func inputIntMaybe(scanner *bufio.Scanner, fallback int) (int, error) {
+	input, err := inputLine(scanner)
+	if err != nil {
+		return 0, err
+	}
+
+	if input == "" {
+		return fallback, nil
+	}
+
+	return strconv.Atoi(input)
+}
+
+// CLI
+func usage(file *os.File) {
+	fmt.Fprintln(file, "usage:")
+	fmt.Fprintln(file, "  "+os.Args[0]+" <mode>")
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(file, "modes:")
+	fmt.Fprintln(file, "  help    Show this message and exit")
+	fmt.Fprintln(file, "  decode  Decode the secret from shares")
+	fmt.Fprintln(file, "  encode  Encode the secret into shares")
+}
+
+func handleError(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "error:", err)
+		os.Exit(1)
+	}
+}
+
+func modeDecode() {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	fmt.Print("Enter the field: ")
+	field, err := inputBigInt(scanner)
+	handleError(err)
+
+	fmt.Println("Enter the shares (^D to stop):")
+	var shares []Point
+	for {
+		input, err := inputLine(scanner)
+		if input == "" {
+			break
+		}
+		handleError(err)
+
+		coords := strings.Split(input, ",")
+		if len(coords) != 2 {
+			fmt.Fprintln(os.Stderr, "error: invalid share '"+input+"'")
+			os.Exit(1)
+		}
+
+		var share Point
+		share.x, err = parseBigInt(coords[0])
+		handleError(err)
+
+		share.y, err = parseBigInt(coords[1])
+		handleError(err)
+
+		shares = append(shares, share)
+	}
+
+	fmt.Println()
+	fmt.Println("Recovered secret:", decode(shares, field))
+}
+
+func modeEncode() {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	fmt.Print("Enter the secret: ")
+	secret, err := inputBigInt(scanner)
+	handleError(err)
+
+	fmt.Print("Enter the number of shares (default 6): ")
+	shares, err := inputIntMaybe(scanner, 6)
+	handleError(err)
+
+	fmt.Print("Enter the minimum number of shares (default 3): ")
+	minimum, err := inputIntMaybe(scanner, 3)
+	handleError(err)
+
+	points, field, err := encode(secret, shares, minimum)
+	handleError(err)
+
+	fmt.Println()
+	fmt.Println("Field:", field)
+	fmt.Println("Shares:")
+	for _, point := range points {
+		fmt.Printf("  %d, %d\n", point.x, point.y)
+	}
+}
 
 func main() {
-	shares, field, err := encode(big.NewInt(SECRET), SHARES, MINIMUM)
-	if err != nil {
-		panic(err)
+	if len(os.Args) < 2 {
+		fmt.Fprintln(os.Stderr, "error: mode not provided")
+		fmt.Fprintln(os.Stderr)
+		usage(os.Stderr)
+		os.Exit(1)
 	}
 
-	fmt.Println("Shares:")
-	for _, share := range shares {
-		fmt.Printf("  %d, %d\n", share.x, share.y)
-	}
-	fmt.Println()
+	switch mode := os.Args[1]; mode {
+	case "help":
+		usage(os.Stdout)
 
-	fmt.Println("Secret:", SECRET)
-	fmt.Println("Decode:", decode(shares, field))
+	case "decode":
+		modeDecode()
+
+	case "encode":
+		modeEncode()
+
+	default:
+		fmt.Fprintln(os.Stderr, "error: invalid mode '"+mode+"'")
+		fmt.Fprintln(os.Stderr)
+		usage(os.Stderr)
+		os.Exit(1)
+	}
 }
