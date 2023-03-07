@@ -12,9 +12,6 @@ import (
 )
 
 // Encoder
-// BUG: sometimes decoding does not result in the actual secret
-// Specifically when decoding with the coordinates (1, _) (2, _) (_, _)
-
 type Point struct {
 	x, y *big.Int
 }
@@ -47,13 +44,11 @@ func encode(secret *big.Int, shares int, minimum int) ([]Point, *big.Int, error)
 	points := make([]Point, shares)
 	for i := 0; i < shares; i++ {
 		points[i] = Point{big.NewInt(int64(i + 1)), big.NewInt(0)}
-
-		a := big.NewInt(1)
-		for _, c := range poly {
-			points[i].y = new(big.Int).Add(points[i].y, new(big.Int).Mul(a, c))
-			a = new(big.Int).Mul(a, points[i].x)
+		for j := len(poly) - 1; j >= 0; j-- {
+			points[i].y = new(big.Int).Mul(points[i].y, points[i].x)
+			points[i].y = new(big.Int).Add(points[i].y, poly[j])
+			points[i].y = new(big.Int).Mod(points[i].y, field)
 		}
-
 		points[i].y = new(big.Int).Mod(points[i].y, field)
 	}
 
