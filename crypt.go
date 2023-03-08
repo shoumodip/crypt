@@ -49,30 +49,48 @@ func encode(secret *big.Int, shares int, minimum int) ([]Point, *big.Int, error)
 			points[i].y = new(big.Int).Add(points[i].y, poly[j])
 			points[i].y = new(big.Int).Mod(points[i].y, field)
 		}
-		points[i].y = new(big.Int).Mod(points[i].y, field)
 	}
 
 	return points, field, nil
 }
 
-func decode(points []Point, field *big.Int) *big.Int {
-	sum := big.NewFloat(0.0)
-	for i := range points {
-		xi := new(big.Float).SetInt(points[i].x)
+func divmod(number *big.Int, divisor *big.Int, field *big.Int) *big.Int {
+	x1, y1 := big.NewInt(0), big.NewInt(1)
+	x2, y2 := big.NewInt(1), big.NewInt(0)
+	for len(field.Bits()) != 0 {
+		quot := new(big.Int).Div(divisor, field)
+		divisor, field = field, new(big.Int).Mod(divisor, field)
+		x1, x2 = new(big.Int).Sub(x2, new(big.Int).Mul(quot, x1)), x1
+		y1, y2 = new(big.Int).Sub(y2, new(big.Int).Mul(quot, y1)), y1
+	}
+	return number.Mul(number, x2)
+}
 
-		product := big.NewFloat(1.0)
+func decode(points []Point, field *big.Int) *big.Int {
+	d := big.NewInt(1)
+	ds := make([]*big.Int, len(points))
+	ns := make([]*big.Int, len(points))
+
+	for i := range points {
+		dp, np := big.NewInt(1), big.NewInt(1)
 		for j := range points {
-			if j != i {
-				xj := new(big.Float).SetInt(points[j].x)
-				product = new(big.Float).Mul(product, new(big.Float).Quo(xj, new(big.Float).Sub(xj, xi)))
+			if i != j {
+				np = np.Mul(np, new(big.Int).Neg(points[j].x))
+				dp = dp.Mul(dp, new(big.Int).Sub(points[i].x, points[j].x))
 			}
 		}
 
-		sum = new(big.Float).Add(sum, new(big.Float).Mul(new(big.Float).SetInt(points[i].y), product))
+		d = d.Mul(d, dp)
+		ds[i] = dp
+		ns[i] = np
 	}
 
-	result, _ := sum.Int(nil)
-	return new(big.Int).Mod(result, field)
+	n := big.NewInt(0)
+	for i := range points {
+		n = n.Add(n, divmod(new(big.Int).Mod(new(big.Int).Mul(new(big.Int).Mul(ns[i], d), points[i].y), field), ds[i], field))
+	}
+
+	return new(big.Int).Mod((new(big.Int).Add(divmod(n, d, field), field)), field)
 }
 
 // Parser
