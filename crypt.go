@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"math"
 	"math/big"
 	"os"
 	"strconv"
@@ -16,30 +17,24 @@ type Point struct {
 	x, y *big.Int
 }
 
-func encode(secret *big.Int, shares int, minimum int) ([]Point, *big.Int, error) {
+// M607
+var field, _ = new(big.Int).SetString("531137992816767098689588206552468627329593117727031923199444138200403559860852242739162502265229285668889329486246501015346579337652707239409519978766587351943831270835393219031728127", 10)
+
+func encode(secret *big.Int, shares int, minimum int) ([]Point, error) {
 	if minimum > shares {
-		return nil, nil, errors.New("minimum shares cannot be larger than total shares")
+		return nil, errors.New("minimum shares cannot be larger than total shares")
 	}
 
 	poly := make([]*big.Int, minimum)
 	for i := 1; i < minimum; i++ {
 		n, err := rand.Int(rand.Reader, secret)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		poly[i] = n
 	}
 	poly[0] = secret
-
-	field := secret
-	if field.Int64()&1 == 0 {
-		field = new(big.Int).Add(field, big.NewInt(1))
-	}
-
-	for !field.ProbablyPrime(20) {
-		field = new(big.Int).Add(field, big.NewInt(2))
-	}
 
 	points := make([]Point, shares)
 	for i := 0; i < shares; i++ {
@@ -51,22 +46,23 @@ func encode(secret *big.Int, shares int, minimum int) ([]Point, *big.Int, error)
 		}
 	}
 
-	return points, field, nil
+	return points, nil
 }
 
-func divmod(number *big.Int, divisor *big.Int, field *big.Int) *big.Int {
+func divmod(number *big.Int, divisor *big.Int) *big.Int {
+	p := field
 	x1, y1 := big.NewInt(0), big.NewInt(1)
 	x2, y2 := big.NewInt(1), big.NewInt(0)
-	for len(field.Bits()) != 0 {
-		quot := new(big.Int).Div(divisor, field)
-		divisor, field = field, new(big.Int).Mod(divisor, field)
+	for len(p.Bits()) != 0 {
+		quot := new(big.Int).Div(divisor, p)
+		divisor, p = p, new(big.Int).Mod(divisor, p)
 		x1, x2 = new(big.Int).Sub(x2, new(big.Int).Mul(quot, x1)), x1
 		y1, y2 = new(big.Int).Sub(y2, new(big.Int).Mul(quot, y1)), y1
 	}
-	return number.Mul(number, x2)
+	return new(big.Int).Mul(number, x2)
 }
 
-func decode(points []Point, field *big.Int) *big.Int {
+func decode(points []Point) *big.Int {
 	d := big.NewInt(1)
 	ds := make([]*big.Int, len(points))
 	ns := make([]*big.Int, len(points))
@@ -75,22 +71,21 @@ func decode(points []Point, field *big.Int) *big.Int {
 		dp, np := big.NewInt(1), big.NewInt(1)
 		for j := range points {
 			if i != j {
-				np = np.Mul(np, new(big.Int).Neg(points[j].x))
-				dp = dp.Mul(dp, new(big.Int).Sub(points[i].x, points[j].x))
+				np = new(big.Int).Mul(np, new(big.Int).Neg(points[j].x))
+				dp = new(big.Int).Mul(dp, new(big.Int).Sub(points[i].x, points[j].x))
 			}
 		}
 
-		d = d.Mul(d, dp)
+		d = new(big.Int).Mul(d, dp)
 		ds[i] = dp
 		ns[i] = np
 	}
 
 	n := big.NewInt(0)
 	for i := range points {
-		n = n.Add(n, divmod(new(big.Int).Mod(new(big.Int).Mul(new(big.Int).Mul(ns[i], d), points[i].y), field), ds[i], field))
+		n = new(big.Int).Add(n, divmod(new(big.Int).Mod(new(big.Int).Mul(new(big.Int).Mul(ns[i], d), points[i].y), field), ds[i]))
 	}
-
-	return new(big.Int).Mod((new(big.Int).Add(divmod(n, d, field), field)), field)
+	return new(big.Int).Mod((new(big.Int).Add(divmod(n, d), field)), field)
 }
 
 // Parser
@@ -132,16 +127,6 @@ func inputIntMaybe(scanner *bufio.Scanner, fallback int) (int, error) {
 }
 
 // CLI
-func usage(file *os.File) {
-	fmt.Fprintln(file, "usage:")
-	fmt.Fprintln(file, "  "+os.Args[0]+" <mode>")
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(file, "modes:")
-	fmt.Fprintln(file, "  help    Show this message and exit")
-	fmt.Fprintln(file, "  decode  Decode the secret from shares")
-	fmt.Fprintln(file, "  encode  Encode the secret into shares")
-}
-
 func handleError(err error) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
@@ -149,12 +134,45 @@ func handleError(err error) {
 	}
 }
 
+func expect(actual *big.Int, expected *big.Int) bool {
+	if actual.Cmp(expected) == 0 {
+		return true
+	}
+
+	fmt.Fprintln(os.Stderr, "Actual:", actual)
+	fmt.Fprintln(os.Stderr, "Expected:", expected)
+	fmt.Fprintln(os.Stderr)
+	return false
+}
+
+func modeTest() {
+	max := big.NewInt(math.MaxInt)
+	fail := 0
+	for i := 3; i < 100; i++ {
+		expected, err := rand.Int(rand.Reader, max)
+		handleError(err)
+
+		points, err := encode(expected, i*2, i)
+		handleError(err)
+
+		if !expect(decode(points[:i]), expected) {
+			fail += 1
+		}
+
+		if !expect(decode(points[i:]), expected) {
+			fail += 1
+		}
+	}
+
+	if fail == 0 {
+		fmt.Fprintln(os.Stderr, "OK")
+	} else {
+		fmt.Fprintln(os.Stderr, fail, "test cases failed")
+	}
+}
+
 func modeDecode() {
 	scanner := bufio.NewScanner(os.Stdin)
-
-	fmt.Print("Enter the field: ")
-	field, err := inputBigInt(scanner)
-	handleError(err)
 
 	fmt.Println("Enter the shares (^D to stop):")
 	var shares []Point
@@ -182,7 +200,7 @@ func modeDecode() {
 	}
 
 	fmt.Println()
-	fmt.Println("Recovered secret:", decode(shares, field))
+	fmt.Println("Recovered secret:", decode(shares))
 }
 
 func modeEncode() {
@@ -200,15 +218,26 @@ func modeEncode() {
 	minimum, err := inputIntMaybe(scanner, 3)
 	handleError(err)
 
-	points, field, err := encode(secret, shares, minimum)
+	points, err := encode(secret, shares, minimum)
 	handleError(err)
 
 	fmt.Println()
-	fmt.Println("Field:", field)
 	fmt.Println("Shares:")
 	for _, point := range points {
-		fmt.Printf("  %d, %d\n", point.x, point.y)
+		fmt.Printf("  %d, %d", point.x, point.y)
+		fmt.Println()
 	}
+}
+
+func usage(file *os.File) {
+	fmt.Fprintln(file, "usage:")
+	fmt.Fprintln(file, "  "+os.Args[0]+" <mode>")
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(file, "modes:")
+	fmt.Fprintln(file, "  help    Show this message and exit")
+	fmt.Fprintln(file, "  test    Verify the builtin test cases")
+	fmt.Fprintln(file, "  decode  Decode the secret from shares")
+	fmt.Fprintln(file, "  encode  Encode the secret into shares")
 }
 
 func main() {
@@ -222,6 +251,9 @@ func main() {
 	switch mode := os.Args[1]; mode {
 	case "help":
 		usage(os.Stdout)
+
+	case "test":
+		modeTest()
 
 	case "decode":
 		modeDecode()
