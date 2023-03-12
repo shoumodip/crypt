@@ -200,14 +200,14 @@ func modeDecode() {
 	}
 
 	fmt.Println()
-	fmt.Println("Recovered secret:", decode(shares))
+	fmt.Println("Recovered secret:", string(decode(shares).Bytes()))
 }
 
 func modeEncode() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Print("Enter the secret: ")
-	secret, err := inputBigInt(scanner)
+	secret, err := inputLine(scanner)
 	handleError(err)
 
 	fmt.Print("Enter the number of shares (default 6): ")
@@ -218,7 +218,7 @@ func modeEncode() {
 	minimum, err := inputIntMaybe(scanner, 3)
 	handleError(err)
 
-	points, err := encode(secret, shares, minimum)
+	points, err := encode(new(big.Int).SetBytes([]byte(secret)), shares, minimum)
 	handleError(err)
 
 	fmt.Println()
