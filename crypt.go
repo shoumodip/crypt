@@ -232,7 +232,7 @@ func modeEncode() {
 func usage(file *os.File) {
 	fmt.Fprintln(file, "usage:")
 	fmt.Fprintln(file, "  "+os.Args[0]+" <mode>")
-	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(file)
 	fmt.Fprintln(file, "modes:")
 	fmt.Fprintln(file, "  help    Show this message and exit")
 	fmt.Fprintln(file, "  test    Verify the builtin test cases")
