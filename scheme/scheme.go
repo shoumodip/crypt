@@ -21,10 +21,7 @@ func Decode(shares [][]byte) []byte {
 			weight := byte(1)
 			for j := range shares {
 				if i != j {
-					top := field.Sub(0, xs[j])
-					bottom := field.Sub(xs[i], xs[j])
-					factor := field.Div(top, bottom)
-					weight = field.Mul(weight, factor)
+					weight = field.Mul(weight, field.Div(xs[j], field.Sub(xs[j], xs[i])))
 				}
 			}
 			result = field.Add(result, field.Mul(weight, ys[i]))
