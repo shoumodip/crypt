@@ -1,8 +1,8 @@
-package scheme
+package crypt
 
 import (
 	"crypto/rand"
-	"github.com/shoumodip/crypt/field"
+	"github.com/shoumodip/crypt/pkg/field"
 )
 
 func Decode(shares [][]byte) []byte {

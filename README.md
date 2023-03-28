@@ -3,7 +3,7 @@
 
 ## Quick Start
 ```console
-$ go build
+$ go build cmd/crypt/crypt.go
 ```
 
 ## Example Usage

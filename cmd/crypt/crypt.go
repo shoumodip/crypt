@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/hex"
 	"fmt"
-	"github.com/shoumodip/crypt/scheme"
+	"github.com/shoumodip/crypt/pkg/crypt"
 	"os"
 	"strconv"
 )
@@ -67,7 +67,7 @@ func modeDecode() {
 	}
 
 	fmt.Println()
-	fmt.Println("Recovered secret:", string(scheme.Decode(shares)))
+	fmt.Println("Recovered secret:", string(crypt.Decode(shares)))
 }
 
 func modeEncode() {
@@ -85,7 +85,7 @@ func modeEncode() {
 	k, err := inputByte(scanner, 3)
 	handleError(err)
 
-	shares, err := scheme.Encode([]byte(secret), n, k)
+	shares, err := crypt.Encode([]byte(secret), n, k)
 	handleError(err)
 
 	fmt.Println()
