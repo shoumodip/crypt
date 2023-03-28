@@ -25,6 +25,10 @@ func encode(secret *big.Int, shares int, minimum int) ([]Point, error) {
 		return nil, errors.New("minimum shares cannot be larger than total shares")
 	}
 
+	if secret.Cmp(field) != -1 {
+		return nil, errors.New("secret is too big")
+	}
+
 	poly := make([]*big.Int, minimum)
 	for i := 1; i < minimum; i++ {
 		n, err := rand.Int(rand.Reader, secret)
@@ -50,16 +54,8 @@ func encode(secret *big.Int, shares int, minimum int) ([]Point, error) {
 }
 
 func divmod(number *big.Int, divisor *big.Int) *big.Int {
-	p := field
-	x1, y1 := big.NewInt(0), big.NewInt(1)
-	x2, y2 := big.NewInt(1), big.NewInt(0)
-	for len(p.Bits()) != 0 {
-		quot := new(big.Int).Div(divisor, p)
-		divisor, p = p, new(big.Int).Mod(divisor, p)
-		x1, x2 = new(big.Int).Sub(x2, new(big.Int).Mul(quot, x1)), x1
-		y1, y2 = new(big.Int).Sub(y2, new(big.Int).Mul(quot, y1)), y1
-	}
-	return new(big.Int).Mul(number, x2)
+	inverse := new(big.Int)
+	return new(big.Int).GCD(inverse, nil, divisor, field).Mul(number, inverse)
 }
 
 func decode(points []Point) *big.Int {
@@ -85,7 +81,8 @@ func decode(points []Point) *big.Int {
 	for i := range points {
 		n = new(big.Int).Add(n, divmod(new(big.Int).Mod(new(big.Int).Mul(new(big.Int).Mul(ns[i], d), points[i].y), field), ds[i]))
 	}
-	return new(big.Int).Mod((new(big.Int).Add(divmod(n, d), field)), field)
+
+	return new(big.Int).Mod(new(big.Int).Add(divmod(n, d), field), field)
 }
 
 // Parser
