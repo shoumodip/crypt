@@ -1,0 +1,27 @@
+body {
+    width: 50%;
+    margin: auto;
+}
+
+input {
+    flex: 1;
+    border: none;
+    outline: none;
+}
+
+button {
+    flex: 1;
+    border: none;
+}
+
+section {
+    gap: 2px;
+    display: flex;
+}
+
+textarea {
+    flex: 1;
+    border: none;
+    resize: none;
+    outline: none;
+}

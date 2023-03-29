@@ -29,3 +29,12 @@ Enter the shares (^D to stop):
 
 Recovered secret: Hello, world!
 ```
+
+## Web Version
+```console
+$ GOOS=js GOARCH=wasm go build -o web/crypt.wasm cmd/wasm/wasm.go
+$ go run cmd/server/server.go
+Serving HTTP on localhost:8000
+```
+
+Open your web browser on `localhost:8000`
