@@ -1,6 +1,5 @@
-body {
-    width: 50%;
-    margin: auto;
+* {
+    font-size: larger;
 }
 
 input {
