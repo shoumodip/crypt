@@ -1,17 +1,5 @@
 * {
-    font-size: larger;
-}
-
-input {
-    flex: 1;
-    width: 100%;
-    border: none;
-    outline: none;
-}
-
-button {
-    flex: 1;
-    border: none;
+    font-size: xx-large;
 }
 
 section {
@@ -20,16 +8,17 @@ section {
     flex-direction: row;
 }
 
-textarea {
+input, button, textarea {
     flex: 1;
+    width: 100%;
     border: none;
     resize: none;
     outline: none;
 }
 
 @media (any-pointer: coarse) {
-    button {
-        height: 20vh;
+    * {
+        font-size: xxx-large;
     }
 
     section {
