@@ -27,7 +27,7 @@ textarea {
     outline: none;
 }
 
-@media (max-width: 800px) {
+@media (any-pointer: coarse) {
     section {
         flex-direction: column;
     }
