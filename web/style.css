@@ -4,6 +4,7 @@
 
 input {
     flex: 1;
+    width: 100%;
     border: none;
     outline: none;
 }
@@ -16,6 +17,7 @@ button {
 section {
     gap: 2px;
     display: flex;
+    flex-direction: row;
 }
 
 textarea {
@@ -23,4 +25,10 @@ textarea {
     border: none;
     resize: none;
     outline: none;
+}
+
+@media (max-width: 800px) {
+    section {
+        flex-direction: column;
+    }
 }
