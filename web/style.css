@@ -28,6 +28,10 @@ textarea {
 }
 
 @media (any-pointer: coarse) {
+    button {
+        height: 20vh;
+    }
+
     section {
         flex-direction: column;
     }
