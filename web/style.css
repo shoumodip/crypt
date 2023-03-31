@@ -9,7 +9,7 @@ span {
 }
 
 @media (any-pointer: coarse) {
-    span {
+    span.input {
         flex-wrap: wrap;
     }
 }

@@ -19,19 +19,19 @@
         </header>
 
         <section id="encode-main" class="current">
-            <span>
+            <span class="input">
                 <textarea id="encode-input" rows="8" placeholder="Enter secret here"></textarea>
                 <textarea id="encode-output" rows="8" placeholder="Encoded shares" readonly></textarea>
             </span>
 
             <span>
-                <input id="encode-shares" type="number" min="3" max="255" value="4">
-                <input id="encode-minimum" type="number" min="2" max="255" value="2">
+                <input id="encode-shares" type="number" min="3" max="255" value="4" required>
+                <input id="encode-minimum" type="number" min="2" max="255" value="2" required>
             </span>
         </section>
 
         <section id="decode-main">
-            <span>
+            <span class="input">
                 <textarea id="decode-input" rows="8" placeholder="Enter shares here"></textarea>
                 <textarea id="decode-output" rows="8" placeholder="Decoded secret" readonly></textarea>
             </span>
