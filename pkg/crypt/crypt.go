@@ -2,10 +2,17 @@ package crypt
 
 import (
 	"crypto/rand"
+	"errors"
 	"github.com/shoumodip/crypt/pkg/field"
 )
 
-func Decode(shares [][]byte) []byte {
+func Decode(shares [][]byte) ([]byte, error) {
+	for _, share := range shares {
+		if len(share) != len(shares[0]) {
+			return nil, errors.New("crypt: invalid shares")
+		}
+	}
+
 	xs := make([]byte, len(shares))
 	ys := make([]byte, len(shares))
 	secret := make([]byte, len(shares[0])-1)
@@ -30,10 +37,14 @@ func Decode(shares [][]byte) []byte {
 		secret[i] = result
 	}
 
-	return secret
+	return secret, nil
 }
 
 func Encode(secret []byte, n, k byte) ([][]byte, error) {
+	if n <= k {
+		return nil, errors.New("crypt: minimum shares must be less than total shares")
+	}
+
 	shares := make([][]byte, n)
 	for i := range shares {
 		shares[i] = append(shares[i], byte(i))

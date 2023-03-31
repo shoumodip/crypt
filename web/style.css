@@ -1,27 +1,59 @@
 * {
-    font-size: xx-large;
+    font-size: 1.5rem;
 }
 
-section {
-    gap: 2px;
-    display: flex;
-    flex-direction: row;
-}
-
-input, button, textarea {
-    flex: 1;
+span {
+    gap: 0.3rem;
     width: 100%;
-    border: none;
-    resize: none;
-    outline: none;
+    display: flex;
 }
 
 @media (any-pointer: coarse) {
-    * {
-        font-size: xxx-large;
+    span {
+        flex-wrap: wrap;
     }
+}
 
-    section {
-        flex-direction: column;
-    }
+input {
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 0.5rem;
+}
+
+header {
+    display: flex;
+}
+
+button {
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 0.5rem;
+    border-bottom-color: transparent;
+    border-bottom-style: solid;
+    border-bottom-width: 0.2rem;
+}
+
+button.current {
+    border-bottom-color: green;
+}
+
+section {
+    display: none;
+    padding-top: 0.3rem;
+}
+
+section.current {
+    gap: 0.3rem;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+textarea {
+    width: 100%;
+    resize: none;
+    border: none;
+    outline: none;
+    padding: 0.5rem;
 }

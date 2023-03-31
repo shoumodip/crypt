@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8"/>
-        <link rel="stylesheet" href="web/style.css">
+        <link rel="stylesheet" href="web/style.css"/>
         <title>Crypt</title>
         <script src="web/runtime.js"></script>
         <script>
@@ -13,15 +13,28 @@
         </script>
     </head>
     <body>
-        <section>
-            <textarea id="input" rows="10"></textarea>
-            <textarea id="output" rows="10" readonly></textarea>
+        <header>
+            <button id="encode-tab" class="current">Encode</button>
+            <button id="decode-tab">Decode</button>
+        </header>
+
+        <section id="encode-main" class="current">
+            <span>
+                <textarea id="encode-input" rows="8" placeholder="Enter secret here"></textarea>
+                <textarea id="encode-output" rows="8" placeholder="Encoded shares" readonly></textarea>
+            </span>
+
+            <span>
+                <input id="encode-shares" type="number" min="3" max="255" value="4">
+                <input id="encode-minimum" type="number" min="2" max="255" value="2">
+            </span>
         </section>
-        <section>
-            <button id="encode">Encode</button>
-            <button id="decode">Decode</button>
-            <input id="shares" type="number" min="3" max="255" value="6">
-            <input id="minimum" type="number" min="2" max="255" value="3">
+
+        <section id="decode-main">
+            <span>
+                <textarea id="decode-input" rows="8" placeholder="Enter shares here"></textarea>
+                <textarea id="decode-output" rows="8" placeholder="Decoded secret" readonly></textarea>
+            </span>
         </section>
     </body>
 </html>
