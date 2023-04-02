@@ -66,8 +66,11 @@ func modeDecode() {
 		shares = append(shares, share)
 	}
 
+	secret, err := crypt.Decode(shares)
+	handleError(err)
+
 	fmt.Println()
-	fmt.Println("Recovered secret:", string(crypt.Decode(shares)))
+	fmt.Println("Recovered secret:", string(secret))
 }
 
 func modeEncode() {
