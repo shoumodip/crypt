@@ -80,12 +80,12 @@ func modeEncode() {
 	secret, err := inputLine(scanner)
 	handleError(err)
 
-	fmt.Print("Enter the number of shares (default 6): ")
-	n, err := inputByte(scanner, 6)
+	fmt.Print("Enter the number of shares (default 4): ")
+	n, err := inputByte(scanner, 4)
 	handleError(err)
 
-	fmt.Print("Enter the minimum number of shares (default 3): ")
-	k, err := inputByte(scanner, 3)
+	fmt.Print("Enter the minimum number of shares (default 2): ")
+	k, err := inputByte(scanner, 2)
 	handleError(err)
 
 	shares, err := crypt.Encode([]byte(secret), n, k)
