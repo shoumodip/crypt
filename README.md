@@ -10,8 +10,8 @@ $ make
 ```console
 $ ./crypt encode
 Enter the secret: Hello, world!
-Enter the number of shares (default 6):
-Enter the minimum number of shares (default 3):
+Enter the number of shares (default 4):
+Enter the minimum number of shares (default 2):
 
 Shares:
 005a98af88a98a9b2e3690779b10
