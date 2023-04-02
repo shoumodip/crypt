@@ -3,7 +3,7 @@
 
 ## Quick Start
 ```console
-$ go build cmd/crypt/crypt.go
+$ make
 ```
 
 ## Example Usage
@@ -32,8 +32,7 @@ Recovered secret: Hello, world!
 
 ## Web Version
 ```console
-$ GOOS=js GOARCH=wasm go build -o web/crypt.wasm cmd/wasm/wasm.go
-$ go run cmd/server/server.go
+$ ./server
 Serving HTTP on localhost:8000
 ```
 
