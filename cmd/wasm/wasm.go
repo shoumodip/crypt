@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/hex"
-	"syscall/js"
-	"strings"
 	"github.com/shoumodip/crypt/pkg/crypt"
+	"strings"
+	"syscall/js"
 )
 
 func textBoxShow(textBox js.Value, message string) {
@@ -25,7 +25,7 @@ func getElementById(document js.Value, id string) js.Value {
 	return element
 }
 
-func addEventListener(element js.Value, event string, callback func (js.Value, []js.Value) any) {
+func addEventListener(element js.Value, event string, callback func(js.Value, []js.Value) any) {
 	element.Call("addEventListener", event, js.FuncOf(callback))
 }
 
@@ -81,7 +81,7 @@ func main() {
 	decodeInput := getElementById(document, "decode-input")
 	decodeOutput := getElementById(document, "decode-output")
 
-	addEventListener(encodeTab, "click", func (this js.Value, args []js.Value) any {
+	addEventListener(encodeTab, "click", func(this js.Value, args []js.Value) any {
 		decodeTab.Set("className", "")
 		decodeMain.Set("className", "")
 
@@ -90,7 +90,7 @@ func main() {
 		return nil
 	})
 
-	addEventListener(decodeTab, "click", func (this js.Value, args []js.Value) any {
+	addEventListener(decodeTab, "click", func(this js.Value, args []js.Value) any {
 		encodeTab.Set("className", "")
 		encodeMain.Set("className", "")
 
@@ -99,22 +99,22 @@ func main() {
 		return nil
 	})
 
-	addEventListener(encodeInput, "input", func (this js.Value, args []js.Value) any {
+	addEventListener(encodeInput, "input", func(this js.Value, args []js.Value) any {
 		encodeUpdateCallback(encodeInput, encodeOutput, encodeShares, encodeMinimum)
 		return nil
 	})
 
-	addEventListener(encodeShares, "input", func (this js.Value, args []js.Value) any {
+	addEventListener(encodeShares, "input", func(this js.Value, args []js.Value) any {
 		encodeUpdateCallback(encodeInput, encodeOutput, encodeShares, encodeMinimum)
 		return nil
 	})
 
-	addEventListener(encodeMinimum, "input", func (this js.Value, args []js.Value) any {
+	addEventListener(encodeMinimum, "input", func(this js.Value, args []js.Value) any {
 		encodeUpdateCallback(encodeInput, encodeOutput, encodeShares, encodeMinimum)
 		return nil
 	})
 
-	addEventListener(decodeInput, "input", func (this js.Value, args []js.Value) any {
+	addEventListener(decodeInput, "input", func(this js.Value, args []js.Value) any {
 		source := strings.Split(decodeInput.Get("value").String(), "\n")
 
 		var shares [][]byte
