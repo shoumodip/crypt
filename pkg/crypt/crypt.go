@@ -7,6 +7,14 @@ import (
 )
 
 func Decode(shares [][]byte) ([]byte, error) {
+	if len(shares) < 2 {
+		return nil, errors.New("crypt: too few shares")
+	}
+
+	if len(shares[0]) < 2 {
+		return nil, errors.New("crypt: invalid shares")
+	}
+
 	for _, share := range shares {
 		if len(share) != len(shares[0]) {
 			return nil, errors.New("crypt: invalid shares")

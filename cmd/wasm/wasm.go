@@ -130,11 +130,6 @@ func main() {
 			}
 		}
 
-		if len(shares) < 2 {
-			textBoxError(decodeOutput, "Need 2 or more shares to decode")
-			return nil
-		}
-
 		secret, err := crypt.Decode(shares)
 		if err != nil {
 			textBoxError(decodeOutput, err.Error())
