@@ -20,20 +20,20 @@
 
         <section id="encode-main" class="current">
             <span class="input">
-                <textarea id="encode-input" rows="8" placeholder="Enter secret here"></textarea>
-                <textarea id="encode-output" rows="8" placeholder="Encoded shares" readonly></textarea>
+                <textarea id="encode-input" rows="14" placeholder="Enter secret here"></textarea>
+                <textarea id="encode-output" rows="14" placeholder="Encoded shares" readonly></textarea>
             </span>
 
             <span>
-                <input id="encode-shares" type="number" min="3" max="255" value="4" required>
-                <input id="encode-minimum" type="number" min="2" max="255" value="2" required>
+                <input id="encode-shares" type="number" min="3" max="255" value="4" title="Total shares" required>
+                <input id="encode-minimum" type="number" min="2" max="255" value="2" title="Minimum shares" required>
             </span>
         </section>
 
         <section id="decode-main">
             <span class="input">
-                <textarea id="decode-input" rows="8" placeholder="Enter shares here"></textarea>
-                <textarea id="decode-output" rows="8" placeholder="Decoded secret" readonly></textarea>
+                <textarea id="decode-input" rows="14" placeholder="Enter shares here"></textarea>
+                <textarea id="decode-output" rows="14" placeholder="Decoded secret" readonly></textarea>
             </span>
         </section>
     </body>

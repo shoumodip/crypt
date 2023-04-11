@@ -16,12 +16,12 @@ span {
 
 input {
     width: 100%;
-    border: none;
     outline: none;
     padding: 0.5rem;
 }
 
 header {
+    border: 1px solid black;
     display: flex;
 }
 
@@ -53,7 +53,6 @@ section.current {
 textarea {
     width: 100%;
     resize: none;
-    border: none;
     outline: none;
     padding: 0.5rem;
     white-space: pre;
