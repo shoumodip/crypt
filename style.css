@@ -1,0 +1,41 @@
+* {
+  font-size: 1.5rem
+}
+
+body {
+  gap: 0.3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+span {
+  gap: 0.3rem;
+  display: flex;
+}
+
+input {
+  width: 100%;
+  border: 1px solid black;
+  padding: 0.3rem;
+}
+
+header {
+  border: 1px solid black;
+  display: flex;
+}
+
+button {
+  width: 100%;
+  border: none;
+  padding: 0.3rem;
+  border-bottom: 0.2rem solid transparent;
+}
+
+textarea {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  border: 1px solid black;
+  outline: none;
+  padding: 0.3rem;
+}

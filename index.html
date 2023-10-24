@@ -1,40 +1,27 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <meta charset="utf-8"/>
-        <link rel="stylesheet" href="web/style.css"/>
-        <title>Crypt</title>
-        <script src="web/runtime.js"></script>
-        <script>
-            const go = new Go();
-            WebAssembly.instantiateStreaming(fetch("web/crypt.wasm"), go.importObject).then((result) => {
-                go.run(result.instance);
-            });
-        </script>
-    </head>
-    <body>
-        <header>
-            <button id="encode-tab" class="current">Encode</button>
-            <button id="decode-tab">Decode</button>
-        </header>
+  <head>
+    <title>Crypt</title>
+    <link rel="stylesheet" href="style.css"/>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <header>
+      <button id="encodeButton">Encode</button>
+      <button id="decodeButton">Decode</button>
+    </header>
 
-        <section id="encode-main" class="current">
-            <span class="input">
-                <textarea id="encode-input" rows="14" placeholder="Enter secret here"></textarea>
-                <textarea id="encode-output" rows="14" placeholder="Encoded shares" readonly></textarea>
-            </span>
+    <span>
+      <textarea id="decodeInput" rows=8></textarea>
+      <textarea id="decodeOutput" rows=8 readonly></textarea>
 
-            <span>
-                <input id="encode-shares" type="number" min="3" max="255" value="4" title="Total shares" required>
-                <input id="encode-minimum" type="number" min="2" max="255" value="2" title="Minimum shares" required>
-            </span>
-        </section>
+      <textarea id="encodeInput" rows=8></textarea>
+      <textarea id="encodeOutput" rows=8 readonly></textarea>
+    </span>
 
-        <section id="decode-main">
-            <span class="input">
-                <textarea id="decode-input" rows="14" placeholder="Enter shares here"></textarea>
-                <textarea id="decode-output" rows="14" placeholder="Decoded secret" readonly></textarea>
-            </span>
-        </section>
-    </body>
+    <span>
+      <input id="totalInput" type="number" min="3" max="255" value="4" title="Total shares"></input>
+      <input id="minimumInput" type="number" min="2" max="255" value="2" title="Minimum shares"></input>
+    </span>
+  </body>
 </html>
