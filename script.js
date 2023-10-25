@@ -231,12 +231,13 @@ window.onload = () => {
 
   decode.input.oninput = () => {
     try {
+      const shares = decode.input.value.split("\n").map((s) => s.trim())
+
       decode.output.style.color = ""
       decode.output.value = crypt.decode(
-        decode.input.value
-          .split("\n")
-          .map((s) => hex.decode(s.trim()))
-          .filter((s) => s.length != 0))
+        shares
+          .filter((s, i) => s != "" && shares.indexOf(s) == i)
+          .map(hex.decode))
     } catch (e) {
       decode.output.style.color = "red"
       decode.output.value = e
@@ -245,7 +246,6 @@ window.onload = () => {
 
   encode.input.oninput = () => {
     try {
-      encode.output.style.color = ""
       if (!encode.shares.validity.valid) {
         throw new Error("total number of shares is not valid")
       }
@@ -254,9 +254,13 @@ window.onload = () => {
         throw new Error("minimum number of shares is not valid")
       }
 
-      encode.output.value = crypt.encode(encode.input.value, encode.shares.valueAsNumber, encode.minimum.valueAsNumber)
-        .map(hex.encode)
-        .join("\n")
+      const shares = crypt.encode(
+        encode.input.value,
+        encode.shares.valueAsNumber,
+        encode.minimum.valueAsNumber)
+
+      encode.output.style.color = ""
+      encode.output.value = shares.map(hex.encode).join("\n")
     } catch (e) {
       encode.output.style.color = "red"
       encode.output.value = e
