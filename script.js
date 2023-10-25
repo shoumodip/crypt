@@ -165,100 +165,104 @@ const crypt = {
   }
 }
 
-function encodeHex(bytes) {
-  return bytes.map((ch) => ch.toString(16).padStart(2, "0")).join("")
-}
+const hex = {
+  encode: (bytes) => {
+    return bytes.map((ch) => ch.toString(16).padStart(2, "0")).join("")
+  },
 
-function decodeHex(string) {
-  if (string.length & 1) {
-    throw new Error("invalid hexadecimal string")
+  decode: (string) => {
+    if (string.length & 1) {
+      throw new Error("invalid hexadecimal string")
+    }
+
+    const bytes = new Uint8Array(string.length / 2)
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = parseInt(string[i * 2] + string[i * 2 + 1], 16)
+    }
+
+    return bytes
   }
-
-  const bytes = new Uint8Array(string.length / 2)
-  for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = parseInt(string[i * 2] + string[i * 2 + 1], 16)
-  }
-
-  return bytes
 }
 
 window.onload = () => {
-  const encodeInput = document.getElementById("encodeInput")
-  const encodeOutput = document.getElementById("encodeOutput")
-
-  const decodeInput = document.getElementById("decodeInput")
-  const decodeOutput = document.getElementById("decodeOutput")
-
-  const encodeButton = document.getElementById("encodeButton")
-  const decodeButton = document.getElementById("decodeButton")
-
-  const totalInput = document.getElementById("totalInput")
-  const minimumInput = document.getElementById("minimumInput")
-
-  decodeButton.onclick = () => {
-    totalInput.style.display = "none"
-    minimumInput.style.display = "none"
-
-    decodeInput.style.display = ""
-    decodeOutput.style.display = ""
-
-    encodeInput.style.display = "none"
-    encodeOutput.style.display = "none"
-
-    decodeButton.style.borderBottomColor = "green"
-    encodeButton.style.borderBottomColor = "transparent"
+  const decode = {
+    input: document.getElementById("decode-input"),
+    output: document.getElementById("decode-output"),
+    button: document.getElementById("decode-button")
   }
 
-  encodeButton.onclick = () => {
-    totalInput.style.display = ""
-    minimumInput.style.display = ""
-
-    decodeInput.style.display = "none"
-    decodeOutput.style.display = "none"
-
-    encodeInput.style.display = ""
-    encodeOutput.style.display = ""
-
-    encodeButton.style.borderBottomColor = "green"
-    decodeButton.style.borderBottomColor = "transparent"
+  const encode = {
+    input: document.getElementById("encode-input"),
+    output: document.getElementById("encode-output"),
+    button: document.getElementById("encode-button"),
+    shares: document.getElementById("encode-shares"),
+    minimum: document.getElementById("encode-minimum")
   }
 
-  encodeButton.onclick()
+  decode.button.onclick = () => {
+    encode.shares.style.display = "none"
+    encode.minimum.style.display = "none"
 
-  decodeInput.oninput = () => {
+    decode.input.style.display = ""
+    decode.output.style.display = ""
+
+    encode.input.style.display = "none"
+    encode.output.style.display = "none"
+
+    decode.button.style.borderBottomColor = "green"
+    encode.button.style.borderBottomColor = "transparent"
+  }
+
+  encode.button.onclick = () => {
+    encode.shares.style.display = ""
+    encode.minimum.style.display = ""
+
+    decode.input.style.display = "none"
+    decode.output.style.display = "none"
+
+    encode.input.style.display = ""
+    encode.output.style.display = ""
+
+    encode.button.style.borderBottomColor = "green"
+    decode.button.style.borderBottomColor = "transparent"
+  }
+
+  encode.button.onclick()
+
+  decode.input.oninput = () => {
     try {
-      decodeOutput.style.color = ""
-      decodeOutput.value = crypt.decode(
-        decodeInput.value
+      decode.output.style.color = ""
+      decode.output.value = crypt.decode(
+        decode.input.value
           .split("\n")
-          .map((s) => decodeHex(s.trim()))
+          .map((s) => hex.decode(s.trim()))
           .filter((s) => s.length != 0))
     } catch (e) {
-      decodeOutput.style.color = "red"
-      decodeOutput.value = e
+      decode.output.style.color = "red"
+      decode.output.value = e
     }
   }
 
-  encodeInput.oninput = () => {
+  encode.input.oninput = () => {
     try {
-      encodeOutput.style.color = ""
-      if (!totalInput.validity.valid) {
+      encode.output.style.color = ""
+      if (!encode.shares.validity.valid) {
         throw new Error("total number of shares is not valid")
       }
 
-      if (!minimumInput.validity.valid) {
+      if (!encode.minimum.validity.valid) {
         throw new Error("minimum number of shares is not valid")
       }
 
-      encodeOutput.value = crypt.encode(encodeInput.value, totalInput.valueAsNumber, minimumInput.valueAsNumber)
-        .map(encodeHex)
+      encode.output.value = crypt.encode(encode.input.value, encode.shares.valueAsNumber, encode.minimum.valueAsNumber)
+        .map(hex.encode)
         .join("\n")
     } catch (e) {
-      encodeOutput.style.color = "red"
-      encodeOutput.value = e
+      encode.output.style.color = "red"
+      encode.output.value = e
     }
   }
 
-  totalInput.oninput = encodeInput.oninput
-  minimumInput.oninput = encodeInput.oninput
+  encode.shares.oninput = encode.input.oninput
+  encode.minimum.oninput = encode.input.oninput
 }
