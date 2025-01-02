@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <title>Crypt</title>
     <link rel="stylesheet" href="style.css"/>
@@ -7,21 +7,24 @@
   </head>
   <body>
     <header>
-      <button id="encode-button">Encode</button>
-      <button id="decode-button">Decode</button>
+      <button id="encode-button" aria-label="Encode">Encode</button>
+      <button id="decode-button" aria-label="Decode">Decode</button>
     </header>
 
     <span>
-      <textarea id="decode-input" rows=8></textarea>
-      <textarea id="decode-output" rows=8 readonly></textarea>
+      <textarea id="decode-input" rows=8 aria-label="Text to decode"></textarea>
+      <textarea id="decode-output" rows=8 readonly aria-label="Decoded result"></textarea>
 
-      <textarea id="encode-input" rows=8></textarea>
-      <textarea id="encode-output" rows=8 readonly></textarea>
+      <textarea id="encode-input" rows=8 aria-label="Text to encode"></textarea>
+      <textarea id="encode-output" rows=8 readonly aria-label="Encoded result"></textarea>
     </span>
 
     <span>
-      <input id="encode-shares" type="number" min="3" max="255" value="4" title="Total shares"></input>
-      <input id="encode-minimum" type="number" min="2" max="255" value="2" title="Minimum shares"></input>
+      <label for="encode-shares" title="The total number of shares to split the secret into">Total Shares:</label>
+      <input id="encode-shares" type="number" min="3" max="255" value="4">
+
+      <label for="encode-minimum" title="The minimum number of shares needed to reconstruct the secret">Threshold:</label>
+      <input id="encode-minimum" type="number" min="2" max="255" value="2">
     </span>
   </body>
 </html>
